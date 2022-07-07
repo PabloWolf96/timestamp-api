@@ -20,23 +20,24 @@ app.get("/", function (req, res) {
 });
 
 app.get("/api/:date", (req, res) => {
-  const date = req.params.date;
-  if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+  const date = +req.params.date || req.params.date;
+  if (isValidDate(date)) {
     // convert date to unix
     const unix = new Date(date).getTime();
     // convert date to utc
     const utc = new Date(date).toUTCString();
     res.json({ unix, utc });
-  } else if (!isNaN(date)) {
-    // convert unix to date
-    const newDate = new Date(parseInt(date));
-    const utc = newDate.toUTCString();
-    const unix = newDate.getTime();
-    res.json({ unix, utc });
+  } else if (!date) {
+    const unix = new Date().getTime();
+    const utc = new Date().toUTCString();
+    return { unix, utc };
   } else {
     res.json({ error: "Invalid Date" });
   }
 });
+function isValidDate(date) {
+  return !isNaN(new Date(date).getTime());
+}
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
