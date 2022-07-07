@@ -18,7 +18,11 @@ app.use(express.static("public"));
 app.get("/", function (req, res) {
   res.sendFile(__dirname + "/views/index.html");
 });
-
+app.get("/api", (req, res) => {
+  const unix = new Date().getTime();
+  const utc = new Date().toUTCString();
+  return res.json({ unix, utc });
+});
 app.get("/api/:date", (req, res) => {
   const date = +req.params.date || req.params.date;
   if (isValidDate(date)) {
@@ -27,10 +31,6 @@ app.get("/api/:date", (req, res) => {
     // convert date to utc
     const utc = new Date(date).toUTCString();
     res.json({ unix, utc });
-  } else if (!date) {
-    const unix = new Date().getTime();
-    const utc = new Date().toUTCString();
-    return { unix, utc };
   } else {
     res.json({ error: "Invalid Date" });
   }
